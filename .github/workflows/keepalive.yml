@@ -1,0 +1,20 @@
+name: Keep API awake
+
+# Render's free tier spins an idle service down after ~15 minutes, which also resets its
+# SQLite file. A ping every 10 minutes keeps the demo warm. Scheduled runs are best-effort,
+# so GitHub may delay one by a few minutes.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping /health
+        run: curl --fail --silent --show-error --retry 3 --retry-delay 20 --max-time 90 https://signal-clone-api-2b0n.onrender.com/health

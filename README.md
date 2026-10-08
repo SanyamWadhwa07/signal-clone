@@ -17,8 +17,8 @@ WebSocket events, not a recording trick.
 
 |  |  |
 |---|---|
-| **Live app** | _add the Vercel URL here_ |
-| **API** | _add the Render URL here_ (interactive docs at `/docs`) |
+| **Live app** | https://signal-clone-jade.vercel.app |
+| **API** | https://signal-clone-api-2b0n.onrender.com (interactive docs at [/docs](https://signal-clone-api-2b0n.onrender.com/docs)) |
 | **Demo login** | pick a demo account on the login screen, code **`123456`** |
 
 The Render free tier sleeps when idle, so the first request can take up to a minute while it wakes up.
