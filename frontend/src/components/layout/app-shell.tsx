@@ -11,7 +11,7 @@ import { useTitleBadge } from "@/hooks/use-title-badge";
 import { MobileTabBar, NavRail } from "./nav-rail";
 
 /** Routes where a phone shows the bottom tab bar (list screens, not an open conversation). */
-const TAB_BAR_ROUTES = /^\/(chats|calls|stories|settings)\/?$|^\/settings\/general\/?$/;
+const TAB_BAR_ROUTES = /^\/(chats|calls|stories|settings)\/?$/;
 
 export function AppShell({ children }: { children: ReactNode }) {
   useRealtimeBootstrap();

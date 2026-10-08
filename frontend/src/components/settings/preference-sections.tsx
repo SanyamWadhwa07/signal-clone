@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Toggle } from "@/components/ui/toggle";
 import { errorMessage } from "@/lib/actions";
 import { usersApi, type UserSettings } from "@/lib/api";
+import { useHasKeyboard } from "@/hooks/use-has-keyboard";
 import { requestDesktopNotifications } from "@/lib/notifications";
 import { logout } from "@/lib/session";
 import { useAuthStore } from "@/stores/auth";
@@ -15,16 +16,19 @@ import { SettingRow, SettingsGroup, SoonBadge } from "./setting-row";
 
 export function GeneralSection() {
   const openModal = useUiStore((state) => state.openModal);
+  const hasKeyboard = useHasKeyboard();
   return (
     <>
-      <SettingsGroup title="Keyboard">
-        <SettingRow
-          label="Keyboard shortcuts"
-          description="Navigate and send faster without the mouse"
-          onClick={() => openModal({ type: "shortcuts" })}
-          control={<Keyboard size={18} className="text-fg-3" />}
-        />
-      </SettingsGroup>
+      {hasKeyboard ? (
+        <SettingsGroup title="Keyboard">
+          <SettingRow
+            label="Keyboard shortcuts"
+            description="Navigate and send faster without the mouse"
+            onClick={() => openModal({ type: "shortcuts" })}
+            control={<Keyboard size={18} className="text-fg-3" />}
+          />
+        </SettingsGroup>
+      ) : null}
       <SettingsGroup title="Account">
         <SettingRow
           label="Log out"

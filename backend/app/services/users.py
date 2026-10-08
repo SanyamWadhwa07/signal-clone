@@ -1,9 +1,12 @@
+from collections.abc import Sequence
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError, bad_request, not_found
-from app.models import User
+from app.models import Contact, User
 from app.realtime import events
 from app.realtime.publisher import EventPublisher, PresenceTracker
+from app.repositories.contacts import ContactRepository
 from app.repositories.users import UserRepository
 from app.schemas.common import normalize_phone
 from app.schemas.user import UpdateMeRequest, UserPublic
@@ -15,16 +18,21 @@ class UserService:
         self,
         session: AsyncSession,
         users: UserRepository,
+        contacts: ContactRepository,
         publisher: EventPublisher,
         presence: PresenceTracker,
+        welcome_contact_phones: Sequence[str] = (),
     ) -> None:
         self.session = session
         self.users = users
+        self.contacts = contacts
+        self.welcome_contact_phones = welcome_contact_phones
         self.publisher = publisher
         self.presence = presence
 
     async def update_me(self, user: User, patch: UpdateMeRequest) -> User:
         fields = patch.model_fields_set
+        finishing_onboarding = user.first_name is None and "first_name" in fields
 
         if "first_name" in fields:
             if patch.first_name is None:
@@ -44,9 +52,19 @@ class UserService:
                 **patch.settings.model_dump(exclude_none=True),
             }
 
+        if finishing_onboarding:
+            await self._add_welcome_contacts(user)
+
         await self.session.commit()
         await self._broadcast_profile(user)
         return user
+
+    async def _add_welcome_contacts(self, user: User) -> None:
+        """A new account starts with no chats but the demo people in its contacts, so a reviewer
+        can message someone straight away instead of facing an empty address book."""
+        for person in await self.users.list_by_phones(self.welcome_contact_phones):
+            if person.id != user.id and person.first_name is not None:
+                self.contacts.add(Contact(owner_id=user.id, contact_id=person.id))
 
     async def _set_username(self, user: User, username: str | None) -> None:
         if username is not None:

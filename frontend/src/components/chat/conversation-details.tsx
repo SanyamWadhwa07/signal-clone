@@ -342,6 +342,7 @@ export function ConversationDetails({ conversation }: { conversation: Conversati
                 <li key={member.user.id}>
                   <PersonRow
                     name={self ? `${member.user.display_name} (You)` : member.user.display_name}
+                    avatarName={member.user.display_name}
                     subtitle={member.user.about ?? undefined}
                     color={member.user.avatar_color}
                     avatarUrl={member.user.avatar_url}

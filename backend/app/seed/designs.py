@@ -52,20 +52,28 @@ def face_canvas(face: Face, size: int = AVATAR_SIZE) -> Canvas:
     dark = (35, 24, 21)
     head = ellipse(0.5, 0.44, 0.20, 0.245)
 
+    feminine = face.style in ("long", "bob", "bun")
+
     c = Canvas(size, size)
     c.add(None, diagonal_gradient(rgb(face.bg[0]), rgb(face.bg[1])))
-    c.add(ellipse(0.5, 1.02, 0.40, 0.27), shirt)  # shoulders
-    c.add(rect(0.43, 0.58, 0.57, 0.80), skin_dark)  # neck
-    c.add(polygon([(0.40, 0.76), (0.60, 0.76), (0.5, 0.90)]), skin_dark)  # collar opening
 
-    # hair behind the head
+    # Hair behind the head goes first, so the neck and shoulders are painted over it. (Drawn after
+    # the neck, long hair covered the chin and read as a beard.)
     if face.style == "long":
         c.add(ellipse(0.5, 0.52, 0.27, 0.37), hair)
     elif face.style == "bob":
         c.add(ellipse(0.5, 0.47, 0.26, 0.28), hair)
 
+    c.add(ellipse(0.5, 1.02, 0.40, 0.27), shirt)  # shoulders
+    c.add(rect(0.43, 0.58, 0.57, 0.80), skin_dark)  # neck
+    c.add(polygon([(0.40, 0.76), (0.60, 0.76), (0.5, 0.90)]), skin_dark)  # collar opening
+
     c.add(ellipse(0.295, 0.46, 0.03, 0.045), skin)  # ears
     c.add(ellipse(0.705, 0.46, 0.03, 0.045), skin)
+    if feminine:  # earrings
+        gold = (232, 190, 84)
+        c.add(ellipse(0.292, 0.53, 0.014, 0.02), gold)
+        c.add(ellipse(0.708, 0.53, 0.014, 0.02), gold)
     c.add(head, skin)
 
     # hair in front
@@ -97,12 +105,15 @@ def face_canvas(face: Face, size: int = AVATAR_SIZE) -> Canvas:
     # eyes, brows, nose, mouth
     c.add(ellipse(0.42, 0.44, 0.017, 0.025), dark)
     c.add(ellipse(0.58, 0.44, 0.017, 0.025), dark)
+    if feminine:  # lash flicks at the outer corners
+        c.add(ellipse(0.39, 0.425, 0.014, 0.007), dark)
+        c.add(ellipse(0.61, 0.425, 0.014, 0.007), dark)
     c.add(rect(0.37, 0.385, 0.47, 0.397), hair if face.style != "turban" else dark)
     c.add(rect(0.53, 0.385, 0.63, 0.397), hair if face.style != "turban" else dark)
     c.add(ellipse(0.5, 0.505, 0.02, 0.014), skin_dark)
     c.add(
         lambda x, y: y >= 0.55 and 0.5 <= ((x - 0.5) / 0.085) ** 2 + ((y - 0.55) / 0.05) ** 2 <= 1,
-        (140, 59, 46),
+        (176, 58, 84) if feminine else (140, 59, 46),
     )
     if face.glasses:
         for cx in (0.42, 0.58):

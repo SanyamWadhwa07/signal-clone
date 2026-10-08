@@ -1,5 +1,7 @@
 "use client";
 
+import { Lock } from "lucide-react";
+
 import { Avatar } from "@/components/ui/avatar";
 import { useConversationTitle } from "@/hooks/use-names";
 import type { Conversation } from "@/lib/api";
@@ -40,6 +42,9 @@ export function ConversationIntro({ conversation }: { conversation: Conversation
       {isGroup && conversation.description ? (
         <p className="mt-2 max-w-sm text-sm text-fg-2">{conversation.description}</p>
       ) : null}
+      <p className="mt-4 flex items-center gap-1.5 text-xs text-fg-3">
+        <Lock size={12} aria-hidden /> Messages and calls are end-to-end encrypted.
+      </p>
     </div>
   );
 }

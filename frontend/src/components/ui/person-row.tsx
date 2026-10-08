@@ -6,6 +6,8 @@ import { cn } from "@/lib/cn";
 
 interface PersonRowProps {
   name: string;
+  /** Text the avatar's initials come from, when the label has extras like "(You)". */
+  avatarName?: string;
   subtitle?: string;
   color?: string | null;
   avatarUrl?: string | null;
@@ -21,6 +23,7 @@ interface PersonRowProps {
 
 export function PersonRow({
   name,
+  avatarName,
   subtitle,
   color,
   avatarUrl,
@@ -43,7 +46,13 @@ export function PersonRow({
       )}
     >
       {leading ?? (
-        <Avatar name={name} color={color} url={avatarUrl} size={40} noteToSelf={noteToSelf} />
+        <Avatar
+          name={avatarName ?? name}
+          color={color}
+          url={avatarUrl}
+          size={40}
+          noteToSelf={noteToSelf}
+        />
       )}
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium">{name}</span>

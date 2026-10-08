@@ -120,6 +120,9 @@ USERS = [
     ),
 ]
 
+# The demo people's numbers: new accounts get them as contacts so a reviewer can message someone at once.
+DEMO_PHONES = tuple(spec.phone for spec in USERS)
+
 # owner -> {contact: nickname}. A nickname is how the *owner* sees that person.
 CONTACTS: dict[str, dict[str, str | None]] = {
     "sanyam": {

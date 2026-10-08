@@ -7,13 +7,15 @@ brief allows.
 
 ![Demo](docs/demo.gif)
 
-The same walkthrough as a smoother video: [docs/demo.mp4](docs/demo.mp4) (about 1.5 minutes: sign in, live
-typing and receipts, a reaction, group info, search, dark and light themes, then the phone layout). A second
-person is playing the other side of the chat live, so the typing dots, delivery and read ticks are real
-WebSocket events, not a recording trick.
+The GIF above is the full walkthrough sped up; [docs/demo.mp4](docs/demo.mp4) is the same thing at normal
+speed (about 2 minutes, plain screen capture with no editing): signing in as a demo user, live typing and
+read receipts, a reaction, group info, search, themes, then **a brand-new account** going from onboarding
+to messaging a demo person, and finally the phone layout. A second person plays the other side of the chat
+live, so the typing dots, delivery and read ticks are real WebSocket events.
 
-> This is an unofficial, educational project. It is not affiliated with Signal Messenger. The logo is my own
-> drawing, and the only thing taken from Signal's design is its published color values.
+> This is an unofficial, educational project and is not affiliated with Signal Messenger. The Signal name
+> and logo belong to Signal; the logo here is cut from their public brand imagery so the clone looks the
+> part, and the screens follow their published design. All code, data and the demo people are my own.
 
 |  |  |
 |---|---|
@@ -22,6 +24,34 @@ WebSocket events, not a recording trick.
 | **Demo login** | pick a demo account on the login screen, code **`123456`** |
 
 The Render free tier sleeps when idle, so the first request can take up to a minute while it wakes up.
+
+## For reviewers
+
+**Fastest way in (10 seconds).** Open the live app, tap a demo account on the login screen (for example
+*Sanyam Wadhwa*), and use the verification code **`123456`**. That account already has chats, groups,
+unread badges, replies, reactions and photos.
+
+**If you create your own account.** Enter any phone number, use code `123456`, and finish the profile
+step. Your chat list starts **empty on purpose**, but the demo people are already in your **contacts**:
+press the compose button (or `Alt+N`), pick anyone, and send a message. Groups work the same way, so you
+can create one from those contacts and try the admin controls. The demo people don't reply by
+themselves, because they are ordinary accounts that nobody is signed in to.
+
+**To see real-time features (two users talking).** Sign in as *Sanyam* in one window and as *Aarav* in
+another. Use a separate browser profile or a private window for the second one, since the session is kept
+per browser. Then try these in the same chat:
+
+- type in one window and watch **"typing…"** appear in the other,
+- send a message and watch the ticks go sending → sent → delivered → read as the other side opens it,
+- react to a message, reply to one, attach an image, or set a disappearing timer from the chat menu.
+
+**What is mocked.** Verification (the code is fixed), encryption (plain text in the database), calls,
+stories and linked devices (placeholder screens). Everything else is real: the REST API, the WebSocket
+events, the SQLite data and the delivery logic. See [Assumptions](#assumptions-and-what-is-mocked).
+
+**One caveat on the hosted copy.** It runs on Render's free tier, where the SQLite file lives on a
+temporary disk. After a redeploy or a long idle period the data resets to the seed, so anything you create
+there is not permanent. A scheduled job pings the API to keep it awake.
 
 ## Run it locally
 
@@ -67,6 +97,7 @@ photos, links and a mix of delivered and read states. Any other phone number jus
 | `JWT_SECRET` | backend | a dev value | Signs session tokens. The app refuses to start in production without a real one |
 | `DATABASE_URL` | backend | local SQLite file | SQLAlchemy async URL |
 | `SEED_ON_STARTUP` | backend | `true` | Seed demo data when the database is empty |
+| `WELCOME_CONTACTS` | backend | `true` | New accounts get the demo people as contacts (no chats) |
 
 ## What it does
 
@@ -318,11 +349,11 @@ cd backend  && uv run pytest && uv run ruff check . && uv run ruff format --chec
 cd frontend && pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm build
 ```
 
-- **Backend, 86 tests.** Auth and sessions, contacts, one chat per pair, idempotent sends, the receipt
+- **Backend, 95 tests.** Auth and sessions, contacts, one chat per pair, idempotent sends, the receipt
   state machine, read markers, pagination, replies, delete rules, reactions, uploads, disappearing
   messages, group admin rules, hidden history for new members, and real WebSocket flows (auth, delivery,
   typing, presence).
-- **Frontend, 61 tests.** Time formatting, message merging and ordering, timeline grouping, system-message
+- **Frontend, 62 tests.** Time formatting, message merging and ordering, timeline grouping, system-message
   text, link detection (including XSS strings), previews and emoji handling.
 - **CI.** GitHub Actions runs lint, formatting, types, tests and a production build for both apps on every
   push.

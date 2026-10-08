@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  ArrowLeft,
+  ChevronLeft,
   Info,
   Lock,
   LogOut,
@@ -19,7 +19,7 @@ import { Menu } from "@/components/ui/menu";
 import { useConversationTitle, useNameOf } from "@/hooks/use-names";
 import { groupsApi, type Conversation } from "@/lib/api";
 import { errorMessage } from "@/lib/actions";
-import { formatPresence } from "@/lib/format";
+import { formatDuration, formatPresence } from "@/lib/format";
 import { navigateTo } from "@/lib/navigation";
 import { useAuthStore } from "@/stores/auth";
 import { useConversationsStore } from "@/stores/conversations";
@@ -89,8 +89,12 @@ export function ConversationHeader({
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-3 px-4">
-      <IconButton label="Back to chats" className="lg:hidden" onClick={() => navigateTo("/chats")}>
-        <ArrowLeft size={22} />
+      <IconButton
+        label="Back to chats"
+        className="text-accent lg:hidden"
+        onClick={() => navigateTo("/chats")}
+      >
+        <ChevronLeft size={28} />
       </IconButton>
       <button
         type="button"
@@ -110,10 +114,17 @@ export function ConversationHeader({
         />
         <span className="min-w-0">
           <span className="block truncate text-base leading-tight font-semibold">{title}</span>
-          {subtitle ? (
+          {subtitle || conversation.disappearing_seconds ? (
             <span
               className={`block truncate text-xs ${typers.length ? "text-accent" : "text-fg-3"}`}
             >
+              {conversation.disappearing_seconds ? (
+                <>
+                  <Timer size={11} className="mr-1 inline -translate-y-px" aria-hidden />
+                  {formatDuration(conversation.disappearing_seconds)}
+                  {subtitle ? " · " : null}
+                </>
+              ) : null}
               {subtitle}
             </span>
           ) : null}
@@ -123,17 +134,30 @@ export function ConversationHeader({
       <div className="flex items-center text-fg">
         {!isNote ? (
           <>
-            <IconButton label="Video call" onClick={comingSoon("Video calls")}>
+            <IconButton
+              label="Video call"
+              className="max-lg:text-accent"
+              onClick={comingSoon("Video calls")}
+            >
               <Video size={22} strokeWidth={1.6} />
             </IconButton>
             {!isGroup ? (
-              <IconButton label="Voice call" onClick={comingSoon("Voice calls")}>
+              <IconButton
+                label="Voice call"
+                className="max-lg:text-accent"
+                onClick={comingSoon("Voice calls")}
+              >
                 <Phone size={21} strokeWidth={1.6} />
               </IconButton>
             ) : null}
           </>
         ) : null}
-        <IconButton label="Search in chat" active={searchOpen} onClick={onToggleSearch}>
+        <IconButton
+          label="Search in chat"
+          active={searchOpen}
+          onClick={onToggleSearch}
+          className="max-lg:hidden"
+        >
           <Search size={21} strokeWidth={1.6} />
         </IconButton>
         <Menu
@@ -147,6 +171,11 @@ export function ConversationHeader({
               label: "Chat details",
               icon: <Info size={16} />,
               onSelect: () => setDetailsOpen(true),
+            },
+            {
+              label: "Search in chat",
+              icon: <Search size={16} />,
+              onSelect: onToggleSearch,
             },
             {
               label: "Disappearing messages",

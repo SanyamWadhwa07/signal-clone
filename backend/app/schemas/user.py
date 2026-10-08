@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import Field, field_validator
 
-from app.schemas.common import USERNAME_PATTERN, Schema, strip_or_none
+from app.schemas.common import USERNAME_PATTERN, Schema, strip_or_none, uploaded_file_path
 
 
 class UserPublic(Schema):
@@ -44,10 +44,15 @@ class UpdateMeRequest(Schema):
     avatar_url: str | None = Field(default=None, max_length=500)
     settings: UserSettingsPatch | None = None
 
-    @field_validator("first_name", "last_name", "about", "avatar_url")
+    @field_validator("first_name", "last_name", "about")
     @classmethod
     def _strip(cls, value: str | None) -> str | None:
         return strip_or_none(value)
+
+    @field_validator("avatar_url")
+    @classmethod
+    def _avatar(cls, value: str | None) -> str | None:
+        return uploaded_file_path(value)
 
     @field_validator("first_name")
     @classmethod

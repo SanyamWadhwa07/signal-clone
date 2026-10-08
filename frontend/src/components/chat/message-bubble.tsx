@@ -177,15 +177,15 @@ function MessageBubbleBase({
               jumbo
                 ? "px-1 text-5xl leading-tight"
                 : cn(
-                    "px-3.5 py-2 text-base leading-[1.4]",
+                    "px-3 py-[7px] text-base leading-[1.4]",
                     deleted
                       ? "border border-line text-fg-3 italic"
                       : mine
                         ? "bg-bubble-out text-bubble-out-fg"
                         : "bg-bubble-in text-bubble-in-fg",
-                    "rounded-[20px]",
-                    mine ? !first && "rounded-tr-[5px]" : !first && "rounded-tl-[5px]",
-                    mine ? !last && "rounded-br-[5px]" : !last && "rounded-bl-[5px]",
+                    "rounded-[18px]",
+                    mine ? !first && "rounded-tr-[4px]" : !first && "rounded-tl-[4px]",
+                    mine ? !last && "rounded-br-[4px]" : !last && "rounded-bl-[4px]",
                   ),
               highlighted && "ring-2 ring-accent ring-offset-2 ring-offset-chat",
               message.status === "sending" && "opacity-80",

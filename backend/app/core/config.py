@@ -24,12 +24,22 @@ class Settings(BaseSettings):
     upload_dir: Path = BACKEND_DIR / "uploads"
     max_upload_mb: int = 10
     seed_on_startup: bool = True
+    # New accounts get the demo people as contacts (no chats), so reviewers can message someone.
+    welcome_contacts: bool = True
     rate_limit_enabled: bool = True
     rate_limit_auth_per_minute: int = 30  # per client IP
     rate_limit_send_per_minute: int = 120  # per user
     rate_limit_upload_per_minute: int = 30  # per user
     purge_interval_seconds: float = 5.0
     presence_grace_seconds: float = 5.0
+
+    @property
+    def welcome_contact_phones(self) -> tuple[str, ...]:
+        from app.seed.data import (
+            DEMO_PHONES,
+        )  # local import: config must not depend on seed at import time
+
+        return DEMO_PHONES
 
     @property
     def cors_origin_list(self) -> list[str]:

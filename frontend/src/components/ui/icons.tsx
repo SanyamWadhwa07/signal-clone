@@ -18,15 +18,11 @@ function base({ size = 20, ...rest }: IconProps) {
   };
 }
 
-/** Signal-style speech bubble logo (original drawing). */
+/** The Signal mark: a transparent PNG made from the brand image, drawn at any size. */
 export function LogoMark({ size = 64, ...rest }: IconProps) {
   return (
     <svg viewBox="0 0 64 64" width={size} height={size} aria-hidden {...rest}>
-      <circle cx="32" cy="32" r="30" fill="#2c6bed" />
-      <path
-        fill="#fff"
-        d="M32 15c-9.9 0-18 7.2-18 16.1 0 4.2 1.8 8 4.7 10.9-.5 2.2-1.8 4.5-3.6 6.3 3.3-.1 6.2-1.3 8.5-3 2.6 1 5.5 1.6 8.4 1.6 9.9 0 18-7.2 18-16S41.9 15 32 15Z"
-      />
+      <image href="/logo.png" width="64" height="64" />
     </svg>
   );
 }

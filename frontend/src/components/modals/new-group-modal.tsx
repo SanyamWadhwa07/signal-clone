@@ -65,6 +65,7 @@ export function NewGroupModal() {
   if (step === "name") {
     return (
       <Modal
+        key="name"
         title="New group"
         onClose={close}
         footer={
@@ -112,6 +113,7 @@ export function NewGroupModal() {
 
   return (
     <Modal
+      key="members"
       title="Add members"
       onClose={close}
       width="md"

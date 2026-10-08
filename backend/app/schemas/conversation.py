@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import Field, field_validator
 
 from app.models import ConversationType, MemberRole
-from app.schemas.common import Schema, strip_or_none
+from app.schemas.common import Schema, strip_or_none, uploaded_file_path
 from app.schemas.message import MessageOut
 from app.schemas.user import UserPublic
 
@@ -42,10 +42,15 @@ class UpdateConversationRequest(Schema):
     avatar_url: str | None = Field(default=None, max_length=500)
     disappearing_seconds: int | None = None
 
-    @field_validator("name", "description", "avatar_url")
+    @field_validator("name", "description")
     @classmethod
     def _strip(cls, value: str | None) -> str | None:
         return strip_or_none(value)
+
+    @field_validator("avatar_url")
+    @classmethod
+    def _avatar(cls, value: str | None) -> str | None:
+        return uploaded_file_path(value)
 
     @field_validator("disappearing_seconds")
     @classmethod
@@ -82,6 +87,11 @@ class CreateGroupRequest(Schema):
         if not value:
             raise ValueError("Group name is required")
         return value
+
+    @field_validator("avatar_url")
+    @classmethod
+    def _avatar(cls, value: str | None) -> str | None:
+        return uploaded_file_path(value)
 
 
 class AddMembersRequest(Schema):

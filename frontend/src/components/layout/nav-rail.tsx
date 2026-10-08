@@ -1,14 +1,15 @@
 "use client";
 
-import { Keyboard, LogOut, Menu as MenuIcon, Phone, Settings, Smartphone } from "lucide-react";
+import { Keyboard, LogOut, Menu as MenuIcon, Phone, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { Avatar } from "@/components/ui/avatar";
-import { ChatsIcon } from "@/components/ui/icons";
+import { ChatsIcon, StoriesIcon } from "@/components/ui/icons";
 import { IconButton } from "@/components/ui/icon-button";
 import { Menu } from "@/components/ui/menu";
+import { useHasKeyboard } from "@/hooks/use-has-keyboard";
 import { cn } from "@/lib/cn";
 import { navigateTo } from "@/lib/navigation";
 import { logout } from "@/lib/session";
@@ -40,7 +41,7 @@ const TABS: Tab[] = [
     href: "/stories",
     label: "Stories",
     match: "/stories",
-    icon: (a) => <Smartphone size={25} strokeWidth={a ? 2.2 : 1.6} />,
+    icon: (a) => <StoriesIcon size={26} filled={a} strokeWidth={a ? 2 : 1.6} />,
   },
 ];
 
@@ -66,6 +67,7 @@ export function NavRail() {
   const unread = useUnreadTotal();
   const user = useAuthStore((state) => state.user);
   const openModal = useUiStore((state) => state.openModal);
+  const hasKeyboard = useHasKeyboard();
 
   return (
     <nav
@@ -86,11 +88,15 @@ export function NavRail() {
               icon: <Settings size={16} />,
               onSelect: () => navigateTo("/settings"),
             },
-            {
-              label: "Keyboard shortcuts",
-              icon: <Keyboard size={16} />,
-              onSelect: () => openModal({ type: "shortcuts" }),
-            },
+            ...(hasKeyboard
+              ? [
+                  {
+                    label: "Keyboard shortcuts",
+                    icon: <Keyboard size={16} />,
+                    onSelect: () => openModal({ type: "shortcuts" }),
+                  },
+                ]
+              : []),
             {
               label: "Log out",
               icon: <LogOut size={16} />,
@@ -180,7 +186,7 @@ export function MobileTabBar() {
             aria-current={active ? "page" : undefined}
             className={cn(
               "flex flex-col items-center gap-0.5 px-4 py-1.5 text-[11px] font-medium",
-              active ? "text-fg" : "text-fg-3",
+              active ? "text-accent" : "text-fg-3",
             )}
           >
             <span className="relative flex">

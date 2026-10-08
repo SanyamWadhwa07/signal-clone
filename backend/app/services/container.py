@@ -57,7 +57,14 @@ class ServiceContainer:
         )
 
     def users(self, session: AsyncSession) -> UserService:
-        return UserService(session, UserRepository(session), self.realtime, self.realtime)
+        return UserService(
+            session,
+            UserRepository(session),
+            ContactRepository(session),
+            self.realtime,
+            self.realtime,
+            self.settings.welcome_contact_phones if self.settings.welcome_contacts else (),
+        )
 
     def contacts(self, session: AsyncSession) -> ContactService:
         return ContactService(

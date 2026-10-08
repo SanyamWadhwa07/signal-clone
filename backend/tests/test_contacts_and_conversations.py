@@ -143,3 +143,41 @@ async def test_search_finds_chats_contacts_and_messages(make_user: UserFactory) 
     assert (await alex.get("/search", params={"q": "100%"})).json()["messages"]
     assert (await alex.get("/search", params={"q": "%%"})).json()["messages"] == []
     assert (await alex.get("/search", params={"q": "v"})).json()["messages"] == []
+
+
+async def test_new_accounts_start_with_the_demo_people_as_contacts_but_no_chats(
+    make_user: UserFactory,
+) -> None:
+    aarav = await make_user.create("Aarav", phone="+919876500002")
+    simran = await make_user.create("Simran", phone="+919876500003")
+    reviewer = await make_user.create("Reviewer", phone="+14155550123")
+
+    contacts = (await reviewer.get("/contacts")).json()
+    assert {c["user"]["first_name"] for c in contacts} == {"Aarav", "Simran"}
+
+    chats = (await reviewer.get("/conversations")).json()
+    assert (chats["items"] if isinstance(chats, dict) else chats) == []
+
+    # They can message a demo person immediately.
+    chat_id = await reviewer.open_direct(aarav)
+    assert (await reviewer.send(chat_id, "hello from a new account"))["body"]
+    assert simran.id != reviewer.id
+
+
+async def test_ordinary_users_are_not_added_to_contacts_automatically(
+    make_user: UserFactory,
+) -> None:
+    alex = await make_user.create("Alex")
+    bob = await make_user.create("Bob")
+    assert (await bob.get("/contacts")).json() == []
+    assert alex.id != bob.id
+
+
+async def test_profile_edits_do_not_re_add_demo_contacts(make_user: UserFactory) -> None:
+    await make_user.create("Aarav", phone="+919876500002")
+    reviewer = await make_user.create("Reviewer", phone="+14155550124")
+    contact_id = (await reviewer.get("/contacts")).json()[0]["id"]
+    await reviewer.delete(f"/contacts/{contact_id}")
+
+    await reviewer.patch("/users/me", json={"about": "Just testing"})
+    assert (await reviewer.get("/contacts")).json() == []

@@ -2,6 +2,7 @@
 
 import {
   ArrowUp,
+  Camera,
   FileText,
   Image as ImageIcon,
   Mic,
@@ -151,6 +152,30 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
 
   const remaining = MAX_MESSAGE_LENGTH - text.length;
 
+  const attachMenu = (
+    <Menu
+      up
+      align="left"
+      trigger={(props) => (
+        <IconButton label="Attach" size={40} className="text-fg" {...props}>
+          <Plus size={26} strokeWidth={1.6} />
+        </IconButton>
+      )}
+      items={[
+        {
+          label: "Photo",
+          icon: <ImageIcon size={16} />,
+          onSelect: () => openFilePicker(true),
+        },
+        {
+          label: "File",
+          icon: <Paperclip size={16} />,
+          onSelect: () => openFilePicker(false),
+        },
+      ]}
+    />
+  );
+
   return (
     <div className="shrink-0 px-4 pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
       {replyTo?.id != null ? (
@@ -200,7 +225,7 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
         <IconButton
           label="Emoji"
           size={40}
-          className="text-fg"
+          className="text-fg max-lg:hidden"
           active={emojiOpen}
           onClick={() => setEmojiOpen((open) => !open)}
         >
@@ -214,7 +239,17 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
           />
         ) : null}
 
-        <div className="min-w-0 flex-1">
+        <div className="relative min-w-0 flex-1">
+          {/* Phone: "+" and camera live inside the pill, as in Signal mobile. */}
+          <div className="absolute bottom-0.5 left-0.5 z-10 lg:hidden">{attachMenu}</div>
+          <IconButton
+            label="Take or choose a photo"
+            size={36}
+            className="absolute right-0.5 bottom-0.5 z-10 text-fg-2 lg:hidden"
+            onClick={() => openFilePicker(true)}
+          >
+            <Camera size={22} strokeWidth={1.6} />
+          </IconButton>
           <textarea
             ref={inputRef}
             value={text}
@@ -230,7 +265,7 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
             onPaste={onPaste}
             onBlur={typing.stop}
             className={cn(
-              "block max-h-[140px] min-h-10 w-full resize-none rounded-[20px] bg-field px-4 py-[9px] text-base",
+              "block max-h-[140px] min-h-10 max-lg:min-h-11 w-full resize-none rounded-[20px] bg-field px-4 py-[9px] text-base max-lg:pr-11 max-lg:pl-11",
               "leading-[22px] outline-none placeholder:text-fg-3 focus:ring-2 focus:ring-accent/60",
             )}
           />
@@ -246,18 +281,7 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
           ) : null}
         </div>
 
-        <Menu
-          up
-          trigger={(props) => (
-            <IconButton label="Attach" size={40} className="text-fg" {...props}>
-              <Plus size={26} strokeWidth={1.6} />
-            </IconButton>
-          )}
-          items={[
-            { label: "Photo", icon: <ImageIcon size={16} />, onSelect: () => openFilePicker(true) },
-            { label: "File", icon: <Paperclip size={16} />, onSelect: () => openFilePicker(false) },
-          ]}
-        />
+        <div className="max-lg:hidden">{attachMenu}</div>
         <input
           ref={fileInputRef}
           type="file"
@@ -280,14 +304,24 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
             <ArrowUp size={22} strokeWidth={2.2} />
           </button>
         ) : (
-          <IconButton
-            label="Voice message"
-            size={40}
-            className="text-fg"
-            onClick={() => toast.info("Voice messages are coming soon")}
-          >
-            <Mic size={24} strokeWidth={1.6} />
-          </IconButton>
+          <>
+            <IconButton
+              label="Voice message"
+              size={40}
+              className="text-fg max-lg:hidden"
+              onClick={() => toast.info("Voice messages are coming soon")}
+            >
+              <Mic size={24} strokeWidth={1.6} />
+            </IconButton>
+            <button
+              type="button"
+              aria-label="Send message"
+              disabled
+              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-bubble-out text-white opacity-70 lg:hidden"
+            >
+              <ArrowUp size={22} strokeWidth={2.2} />
+            </button>
+          </>
         )}
       </div>
     </div>

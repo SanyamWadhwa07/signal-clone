@@ -8,6 +8,10 @@ describe("initials", () => {
     expect(initials("  alex  ")).toBe("A");
     expect(initials("Mary Jane Watson")).toBe("MW");
   });
+  it("skips leading punctuation so labels never produce symbols as initials", () => {
+    expect(initials("(Sanyam) “Wadhwa”")).toBe("SW");
+    expect(initials("@alex")).toBe("A");
+  });
   it("has no initials for phone numbers and handles emoji names", () => {
     expect(initials("+1 555 010 0001")).toBe("#");
     expect(initials("Weekend Hike 🥾")).toBe("WH");

@@ -1,4 +1,5 @@
 import httpx
+import pytest
 
 from tests.conftest import API, OTP, UserFactory
 
@@ -87,3 +88,24 @@ async def test_privacy_settings_are_stored(make_user: UserFactory) -> None:
     alex = await make_user.create("Alex")
     response = await alex.patch("/users/me", json={"settings": {"read_receipts": False}})
     assert response.json()["settings"] == {"read_receipts": False, "typing_indicators": True}
+
+
+@pytest.mark.parametrize(
+    "avatar_url",
+    [
+        "https://evil.example/pixel.png",
+        "//evil.example/pixel.png",
+        "javascript:alert(1)",
+        "/uploads/../secret",
+        "/uploads/..",
+        "/elsewhere/file.png",
+    ],
+)
+async def test_avatar_must_be_an_uploaded_file(make_user: UserFactory, avatar_url: str) -> None:
+    sanyam = await make_user.create("Sanyam")
+    rejected = await sanyam.patch("/users/me", json={"avatar_url": avatar_url})
+    assert rejected.status_code == 422
+
+    accepted = await sanyam.patch("/users/me", json={"avatar_url": "/uploads/0a1b2c.png"})
+    assert accepted.status_code == 200
+    assert accepted.json()["avatar_url"] == "/uploads/0a1b2c.png"

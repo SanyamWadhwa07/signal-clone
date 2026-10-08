@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from datetime import datetime
 
 from sqlalchemy import select, union, update
@@ -24,6 +25,12 @@ class UserRepository:
         if not user_ids:
             return []
         return list(await self.session.scalars(select(User).where(User.id.in_(user_ids))))
+
+    async def list_by_phones(self, phones: Iterable[str]) -> list[User]:
+        phones = list(phones)
+        if not phones:
+            return []
+        return list(await self.session.scalars(select(User).where(User.phone.in_(phones))))
 
     def add(self, user: User) -> None:
         self.session.add(user)

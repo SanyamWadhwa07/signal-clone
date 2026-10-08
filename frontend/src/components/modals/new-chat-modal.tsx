@@ -27,6 +27,7 @@ function ActionIcon({ children }: { children: React.ReactNode }) {
 export function NewChatModal() {
   const me = useAuthStore((state) => state.user);
   const contacts = usePeopleStore((state) => state.contacts);
+  const addContact = usePeopleStore((state) => state.addContact);
   const openModal = useUiStore((state) => state.openModal);
   const close = useUiStore((state) => state.closeModal);
   const [query, setQuery] = useState("");
@@ -54,6 +55,11 @@ export function NewChatModal() {
       const user = await usersApi.lookup(
         isPhone ? { phone: term } : { username: term.replace(/^@/, "") },
       );
+      // Someone you look up and message is a contact from now on, so they appear when you pick
+      // group members. Failing to save them must not stop the chat from opening.
+      if (user.id !== me?.id && !contacts.some((contact) => contact.user.id === user.id)) {
+        await addContact({ phone: user.phone }).catch(() => undefined);
+      }
       await openDirectChat(user.id);
     } catch (caught) {
       setError(errorMessage(caught));

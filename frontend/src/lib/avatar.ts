@@ -48,7 +48,9 @@ export function initials(name: string): string {
     .split(/\s+/)
     .filter((word) => /\p{L}/u.test(word));
   if (words.length === 0) return "#";
-  const first = Array.from(words[0])[0];
-  const last = words.length > 1 ? Array.from(words[words.length - 1])[0] : "";
+  // The first *letter* of a word, so punctuation like "(You)" or "@alex" never becomes an initial.
+  const letter = (word: string) => word.match(/\p{L}/u)?.[0] ?? "";
+  const first = letter(words[0]);
+  const last = words.length > 1 ? letter(words[words.length - 1]) : "";
   return (first + last).toUpperCase();
 }
