@@ -20,7 +20,7 @@ export const viewport: Viewport = {
   themeColor: "#2c6bed",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
