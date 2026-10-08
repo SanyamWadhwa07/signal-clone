@@ -90,7 +90,7 @@ export function Modal({ title, onClose, children, footer, width = "sm" }: ModalP
             <X size={18} />
           </IconButton>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pt-1 pb-4">{children}</div>
         {footer ? (
           <footer className="flex shrink-0 justify-end gap-2 border-t border-line px-5 py-3">
             {footer}

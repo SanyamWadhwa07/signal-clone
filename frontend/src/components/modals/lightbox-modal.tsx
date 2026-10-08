@@ -14,7 +14,10 @@ export function LightboxModal({ src, name }: { src: string; name: string }) {
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") close();
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        close();
+      }
     }
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);

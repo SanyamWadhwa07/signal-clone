@@ -48,7 +48,7 @@ export function ProfileSection() {
           size={72}
         />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-xl font-semibold">{user.display_name}</p>
+          <p className="text-xl font-semibold [overflow-wrap:anywhere]">{user.display_name}</p>
           <p className="text-sm text-fg-3">{prettyPhone(user.phone)}</p>
         </div>
         <Button variant="secondary" size="sm" onClick={() => openModal({ type: "edit-profile" })}>

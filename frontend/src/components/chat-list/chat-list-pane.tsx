@@ -111,7 +111,10 @@ export function ChatListPane({ className }: { className?: string }) {
           placeholder="Search"
           aria-label="Search chats"
           onKeyDown={(event) => {
-            if (event.key === "Escape") setQuery("");
+            if (event.key === "Escape" && query !== "") {
+              event.stopPropagation();
+              setQuery("");
+            }
           }}
         />
         {unreadOnly ? (

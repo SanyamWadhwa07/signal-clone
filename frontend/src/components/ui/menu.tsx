@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+} from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -17,7 +24,7 @@ export interface MenuItem {
 interface MenuProps {
   /** Renders the trigger; spread `props` on the button. */
   trigger: (props: {
-    onClick: () => void;
+    onClick: (event: ReactMouseEvent<HTMLElement>) => void;
     "aria-haspopup": "menu";
     "aria-expanded": boolean;
     "aria-controls": string;
@@ -28,8 +35,24 @@ interface MenuProps {
   up?: boolean;
 }
 
+const ITEM_HEIGHT = 38;
+const MENU_PADDING = 12;
+
+/** The nearest ancestor that would clip an absolutely positioned popover. */
+function clippingBounds(element: HTMLElement): { top: number; bottom: number } {
+  for (let node = element.parentElement; node; node = node.parentElement) {
+    const { overflowY } = getComputedStyle(node);
+    if (overflowY !== "visible") {
+      const { top, bottom } = node.getBoundingClientRect();
+      return { top: Math.max(top, 0), bottom: Math.min(bottom, window.innerHeight) };
+    }
+  }
+  return { top: 0, bottom: window.innerHeight };
+}
+
 export function Menu({ trigger, items, align = "right", up }: MenuProps) {
   const [open, setOpen] = useState(false);
+  const [flip, setFlip] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const id = useId();
 
@@ -52,6 +75,20 @@ export function Menu({ trigger, items, align = "right", up }: MenuProps) {
     };
   }, [open]);
 
+  /** Open on the side with room, so items near the edge of a scroller are never clipped. */
+  function toggle(event: ReactMouseEvent<HTMLElement>) {
+    if (!open) {
+      const trigger = event.currentTarget;
+      const bounds = clippingBounds(trigger);
+      const rect = trigger.getBoundingClientRect();
+      const height = items.length * ITEM_HEIGHT + MENU_PADDING;
+      const below = bounds.bottom - rect.bottom;
+      const above = rect.top - bounds.top;
+      setFlip(up ? above < height && below > above : below < height && above > below);
+    }
+    setOpen((value) => !value);
+  }
+
   function onMenuKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
     event.preventDefault();
@@ -66,7 +103,7 @@ export function Menu({ trigger, items, align = "right", up }: MenuProps) {
   return (
     <div ref={rootRef} className="relative">
       {trigger({
-        onClick: () => setOpen((value) => !value),
+        onClick: toggle,
         "aria-haspopup": "menu",
         "aria-expanded": open,
         "aria-controls": id,
@@ -79,7 +116,7 @@ export function Menu({ trigger, items, align = "right", up }: MenuProps) {
           className={cn(
             "absolute z-40 min-w-[200px] animate-pop-in rounded-lg bg-raised py-1.5 shadow-pop ring-1 ring-line",
             align === "right" ? "right-0" : "left-0",
-            up ? "bottom-full mb-2 origin-bottom" : "top-full mt-1 origin-top",
+            Boolean(up) !== flip ? "bottom-full mb-2 origin-bottom" : "top-full mt-1 origin-top",
           )}
         >
           {items.map((item) => (
