@@ -84,7 +84,11 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
   }, []);
 
   useEffect(resize, [text, resize]);
-  useEffect(() => inputRef.current?.focus(), [conversationId]);
+  // Focus on open only where there is a keyboard and mouse; on touch it would pop the keyboard up
+  // over the conversation every time a chat opens.
+  useEffect(() => {
+    if (window.matchMedia("(pointer: fine)").matches) inputRef.current?.focus();
+  }, [conversationId]);
   useEffect(() => {
     if (replyTo) inputRef.current?.focus();
   }, [replyTo]);

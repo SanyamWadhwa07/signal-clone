@@ -88,7 +88,7 @@ export function ConversationHeader({
   const comingSoon = (what: string) => () => toast.info(`${what} are coming soon`);
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-3 px-4">
+    <header className="flex h-16 shrink-0 items-center gap-3 px-4 max-lg:gap-1.5 max-lg:px-2">
       <IconButton
         label="Back to chats"
         className="text-accent lg:hidden"
@@ -99,7 +99,7 @@ export function ConversationHeader({
       <button
         type="button"
         onClick={() => setDetailsOpen(!detailsOpen)}
-        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left"
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left max-lg:gap-2"
         aria-label="Chat details"
       >
         <Avatar
